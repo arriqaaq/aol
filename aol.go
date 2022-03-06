@@ -15,6 +15,7 @@ var (
 	ErrCorrupt  = errors.New("log corrupt")
 	ErrClosed   = errors.New("log closed")
 	ErrNotFound = errors.New("not found")
+	ErrEOF      = errors.New("end of file reached")
 )
 
 type Options struct {
@@ -368,11 +369,11 @@ func (l *Log) loadSegment(index uint64) (*segment, error) {
 	return s, nil
 }
 
-func (l *Log) Segments(index uint64) int {
+func (l *Log) Segments() int {
 	return len(l.segments)
 }
 
-func (l *Log) Read(index uint64) (data []byte, err error) {
+func (l *Log) Read(segment, index uint64) (data []byte, err error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	if l.corrupt {
@@ -380,15 +381,18 @@ func (l *Log) Read(index uint64) (data []byte, err error) {
 	} else if l.closed {
 		return nil, ErrClosed
 	}
-	if index == 0 {
+	if segment == 0 {
 		return nil, ErrNotFound
 	}
-	s, err := l.loadSegment(index)
+	s, err := l.loadSegment(segment)
 	if err != nil {
 		return nil, err
 	}
 
-	cpos := s.cpos[index-s.index]
+	if int(index) >= len(s.cpos) {
+		return nil, ErrEOF
+	}
+	cpos := s.cpos[index]
 	edata := s.cbuf[cpos.pos:cpos.end]
 	// binary read
 	size, n := binary.Uvarint(edata)
