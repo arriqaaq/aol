@@ -32,7 +32,7 @@ err = log.Write([]byte("second entry"))
 err = log.Write([]byte("third entry"))
 
 // read an entry
-data, err := log.Read(1)
+data, err := log.Read(1,0)
 println(string(data))  // output: first entry
 
 // close the log
