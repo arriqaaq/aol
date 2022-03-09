@@ -19,6 +19,9 @@ var (
 )
 
 type Options struct {
+	// NoSync disables fsync after writes. This is less durable and puts the
+	// log at risk of data loss when there's a server crash.
+	NoSync      bool
 	SegmentSize int // SegmentSize of each segment. Default is 20 MB.
 	DirPerms    os.FileMode
 	FilePerms   os.FileMode
@@ -39,6 +42,7 @@ func (o *Options) validate() {
 }
 
 var DefaultOptions = &Options{
+	NoSync:      false,    // Fsync after every write
 	SegmentSize: 20971520, // 20 MB log segment files.
 	DirPerms:    0750,
 	FilePerms:   0640,
