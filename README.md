@@ -1,6 +1,6 @@
 # aol
 
-A simple and fast append only log in Go. aol is a rewrite of [wal](https://github.com/tidwall/wal) to allow only appends to a log.
+A simple immutable append only log in Go. aol is a rewrite of [wal](https://github.com/tidwall/wal) to allow only appends to a log.
 
 ## Features
 
